@@ -280,7 +280,7 @@ class _SettingsPageState extends State<SettingsPage> {
             const _SettingsDivider(),
 
             _buildListRow(
-              CupertinoIcons.sun_max,
+              CupertinoIcons.light_max,
               'Light Mode',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemYellow,
