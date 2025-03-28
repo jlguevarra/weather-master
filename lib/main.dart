@@ -232,7 +232,7 @@ class _SettingsPageState extends State<SettingsPage> {
             const _SettingsDivider(),
 
             _buildListRow(
-              CupertinoIcons.burn,
+              CupertinoIcons.color_filter,
               'Icon',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemPink,
