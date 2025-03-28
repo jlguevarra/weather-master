@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:untitled4/main.dart'; // Ensure this is the correct package name
+import 'package:myWeather/main.dart'; // Ensure this is the correct package name
 
 void main() {
   testWidgets('Homepage renders correctly', (WidgetTester tester) async {
