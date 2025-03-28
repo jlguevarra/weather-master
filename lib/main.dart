@@ -76,8 +76,8 @@ class _HomepageState extends State<Homepage> {
           kelvinTemp = weatherData["main"]["temp"];
           updateTemperatureDisplay();
           weather = weatherData["weather"][0]['description'];
-          humidity = (weatherData["main"]["humidity"]).toString() + "%";
-          windSpeed = weatherData["wind"]['speed'].toString() + " kph";
+          humidity = "${weatherData["main"]["humidity"]}%";
+          windSpeed = "${weatherData["wind"]['speed']} kph";
 
           if (weather.contains("clear")) {
             weatherStatus = CupertinoIcons.sun_max;
@@ -182,12 +182,12 @@ class _HomepageState extends State<Homepage> {
               SizedBox(height: 50),
               Text('Location', style: TextStyle(fontSize: 35)),
               SizedBox(height: 5),
-              Text('$location', style: TextStyle(fontSize: 25)),
+              Text(location, style: TextStyle(fontSize: 25)),
               SizedBox(height: 20),
               Text(" $temp", style: TextStyle(fontSize: 80)),
               Icon(weatherStatus, color: iconColor, size: 100),
               SizedBox(height: 10),
-              Text('$weather'),
+              Text(weather),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -238,14 +238,14 @@ class SettingsPage extends StatefulWidget {
     // Add these:
     required this.lightMode,
     required this.onThemeChanged,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  SettingsPageState createState() => SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class SettingsPageState extends State<SettingsPage> {
   late String selectedLocation;
   late bool useFahrenheit;
   late Color selectedColor;
@@ -409,7 +409,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Centered image + name pair
-                      Container(
+                      SizedBox(
                         width: MediaQuery.of(context).size.width * 0.6,
                         child: Row(
                           children: [
@@ -495,7 +495,7 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class _SettingsDivider extends StatelessWidget {
-  const _SettingsDivider({Key? key}) : super(key: key);
+  const _SettingsDivider();
 
   @override
   Widget build(BuildContext context) {
@@ -511,13 +511,13 @@ class _SettingsDivider extends StatelessWidget {
 class LocationPicker extends StatefulWidget {
   final String currentLocation;
 
-  const LocationPicker({Key? key, required this.currentLocation}) : super(key: key);
+  const LocationPicker({super.key, required this.currentLocation});
 
   @override
-  _LocationPickerState createState() => _LocationPickerState();
+  LocationPickerState createState() => LocationPickerState();
 }
 
-class _LocationPickerState extends State<LocationPicker> {
+class LocationPickerState extends State<LocationPicker> {
   late TextEditingController _controller;
 
   @override
@@ -581,7 +581,7 @@ class ColorPicker extends StatelessWidget {
     CupertinoColors.systemGrey,
   ];
 
-  const ColorPicker({Key? key, required this.currentColor}) : super(key: key);
+  const ColorPicker({super.key, required this.currentColor});
 
   @override
   Widget build(BuildContext context) {
@@ -622,3 +622,5 @@ class ColorPicker extends StatelessWidget {
     );
   }
 }
+
+
