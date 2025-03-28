@@ -232,8 +232,8 @@ class _SettingsPageState extends State<SettingsPage> {
             const _SettingsDivider(),
 
             _buildListRow(
-              CupertinoIcons.paintbrush,
-              'Icon Color',
+              CupertinoIcons.burn,
+              'Icon',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemPurple,
               trailing: Row(
@@ -265,8 +265,8 @@ class _SettingsPageState extends State<SettingsPage> {
             const _SettingsDivider(),
 
             _buildListRow(
-              CupertinoIcons.textformat_123,
-              'Metric',
+              CupertinoIcons.tree,
+              'Metric System',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemGreen,
               trailing: CupertinoSwitch(
