@@ -48,6 +48,8 @@ class _HomepageState extends State<Homepage> {
             weatherStatus = CupertinoIcons.cloud;
           } else if (weather.contains("haze")) {
             weatherStatus = CupertinoIcons.sun_haze;
+          }else if (weather.contains("snow")) {
+            weatherStatus = CupertinoIcons.snow;
           } else {
             weatherStatus = CupertinoIcons.cloud_sun;
           }
