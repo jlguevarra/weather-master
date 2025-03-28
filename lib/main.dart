@@ -21,21 +21,23 @@ class _HomepageState extends State<Homepage> {
   String weather = "";
   String humidity = "";
   String windSpeed = "";
-  Color iconColor = CupertinoColors.systemOrange; // Default color
+  Color iconColor = CupertinoColors.systemOrange;
+  bool useFahrenheit = false; // Default to Celsius (false)
+  double? kelvinTemp;
 
   Map<String, dynamic> weatherData = {};
 
   Future<void> getWeatherData(String city) async {
     try {
-      String link =
-          "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=a7d420a62aba5ad305ef3885c399d830";
+      String link = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=a7d420a62aba5ad305ef3885c399d830";
       final response = await http.get(Uri.parse(link));
 
       weatherData = jsonDecode(response.body);
       if (weatherData["cod"] == 200) {
         setState(() {
           location = city;
-          temp = (weatherData["main"]["temp"] - 273.15).toStringAsFixed(0) + "°";
+          kelvinTemp = weatherData["main"]["temp"];
+          updateTemperatureDisplay();
           weather = weatherData["weather"][0]['description'];
           humidity = (weatherData["main"]["humidity"]).toString() + "%";
           windSpeed = weatherData["wind"]['speed'].toString() + " kph";
@@ -58,23 +60,39 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  void updateTemperatureDisplay() {
+    if (kelvinTemp != null) {
+      setState(() {
+        temp = useFahrenheit
+            ? "${((kelvinTemp! - 273.15) * 9/5 + 32).toStringAsFixed(0)}°" // Fahrenheit
+            : "${(kelvinTemp! - 273.15).toStringAsFixed(0)}°"; // Celsius
+      });
+    }
+  }
+
+  void toggleTemperatureUnit(bool value) {
+    setState(() {
+      useFahrenheit = value;
+      updateTemperatureDisplay();
+    });
+  }
+
   void showErrorDialog(String message) {
     showCupertinoDialog(
-        context: context,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: Text('Message'),
-            content: Text(message),
-            actions: [
-              CupertinoButton(
-                  child: Text('Close',
-                      style: TextStyle(color: CupertinoColors.destructiveRed)),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  }),
-            ],
-          );
-        });
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: Text('Message'),
+          content: Text(message),
+          actions: [
+            CupertinoButton(
+              child: Text('Close', style: TextStyle(color: CupertinoColors.destructiveRed)),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -86,55 +104,59 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-            middle: Text("iWeather"),
-            trailing: CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: Icon(CupertinoIcons.settings),
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                      builder: (context) => SettingsPage(
-                        location: location,
-                        onLocationChanged: getWeatherData,
-                        initialColor: iconColor,
-                      )),
-                );
+      navigationBar: CupertinoNavigationBar(
+        middle: Text("iWeather"),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Icon(CupertinoIcons.settings),
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => SettingsPage(
+                  location: location,
+                  onLocationChanged: getWeatherData,
+                  initialColor: iconColor,
+                  useFahrenheit: useFahrenheit,
+                  onUnitChanged: toggleTemperatureUnit,
+                ),
+              ),
+            );
 
-                if (result != null && result is Color) {
-                  setState(() {
-                    iconColor = result;
-                  });
-                }
-              },
-            )),
-        child: SafeArea(
-            child: temp != ""
-                ? Center(
-                child: Column(
-                  children: [
-                    SizedBox(height: 50),
-                    Text('Location', style: TextStyle(fontSize: 35)),
-                    SizedBox(height: 5),
-                    Text('$location', style: TextStyle(fontSize: 25)),
-                    SizedBox(height: 20),
-                    Text(" $temp", style: TextStyle(fontSize: 80)),
-                    Icon(weatherStatus,
-                        color: iconColor, size: 100), // Use selected color
-                    SizedBox(height: 10),
-                    Text('$weather'),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('H: $humidity'),
-                        SizedBox(width: 10),
-                        Text('W: $windSpeed')
-                      ],
-                    )
-                  ],
-                ))
-                : Center(child: CupertinoActivityIndicator())));
+            if (result != null && result is Color) {
+              setState(() => iconColor = result);
+            }
+          },
+        ),
+      ),
+      child: SafeArea(
+        child: temp != ""
+            ? Center(
+          child: Column(
+            children: [
+              SizedBox(height: 50),
+              Text('Location', style: TextStyle(fontSize: 35)),
+              SizedBox(height: 5),
+              Text('$location', style: TextStyle(fontSize: 25)),
+              SizedBox(height: 20),
+              Text(" $temp", style: TextStyle(fontSize: 80)),
+              Icon(weatherStatus, color: iconColor, size: 100),
+              SizedBox(height: 10),
+              Text('$weather'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('H: $humidity'),
+                  SizedBox(width: 10),
+                  Text('W: $windSpeed')
+                ],
+              )
+            ],
+          ),
+        )
+            : Center(child: CupertinoActivityIndicator()),
+      ),
+    );
   }
 }
 
@@ -142,11 +164,15 @@ class SettingsPage extends StatefulWidget {
   final String location;
   final Function(String) onLocationChanged;
   final Color initialColor;
+  final bool useFahrenheit;
+  final Function(bool) onUnitChanged;
 
   const SettingsPage({
     required this.location,
     required this.onLocationChanged,
     required this.initialColor,
+    required this.useFahrenheit,
+    required this.onUnitChanged,
     Key? key,
   }) : super(key: key);
 
@@ -156,7 +182,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late String selectedLocation;
-  bool metricSystem = true;
+  late bool useFahrenheit;
   bool lightMode = true;
   late Color selectedColor;
 
@@ -165,6 +191,7 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     selectedLocation = widget.location;
     selectedColor = widget.initialColor;
+    useFahrenheit = widget.useFahrenheit;
   }
 
   @override
@@ -176,7 +203,6 @@ class _SettingsPageState extends State<SettingsPage> {
       child: SafeArea(
         child: Column(
           children: [
-            // Location Row
             _buildListRow(
               CupertinoIcons.location,
               'Location',
@@ -184,25 +210,18 @@ class _SettingsPageState extends State<SettingsPage> {
               iconBgColor: CupertinoColors.systemBlue,
               trailing: Row(
                 children: [
-                  Text(
-                    selectedLocation,
-                    style: const TextStyle(color: CupertinoColors.systemGrey),
-                  ),
-                  const SizedBox(width: 4),
-                  const Icon(CupertinoIcons.chevron_right, size: 18),
+                  Text(selectedLocation, style: TextStyle(color: CupertinoColors.systemGrey)),
+                  SizedBox(width: 4),
+                  Icon(CupertinoIcons.chevron_right, size: 18),
                 ],
               ),
               onTap: () async {
                 final newLocation = await showCupertinoModalPopup<String>(
                   context: context,
-                  builder: (context) => LocationPicker(
-                    currentLocation: selectedLocation,
-                  ),
+                  builder: (context) => LocationPicker(currentLocation: selectedLocation),
                 );
                 if (newLocation != null) {
-                  setState(() {
-                    selectedLocation = newLocation;
-                  });
+                  setState(() => selectedLocation = newLocation);
                   widget.onLocationChanged(newLocation);
                   Navigator.pop(context);
                 }
@@ -210,7 +229,6 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const _SettingsDivider(),
 
-            // Icon Color Row
             _buildListRow(
               CupertinoIcons.paintbrush,
               'Icon Color',
@@ -227,45 +245,38 @@ class _SettingsPageState extends State<SettingsPage> {
                       border: Border.all(color: CupertinoColors.systemGrey),
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  const Icon(CupertinoIcons.chevron_right, size: 18),
+                  SizedBox(width: 4),
+                  Icon(CupertinoIcons.chevron_right, size: 18),
                 ],
               ),
               onTap: () async {
                 final newColor = await showCupertinoModalPopup<Color>(
                   context: context,
-                  builder: (context) => ColorPicker(
-                    currentColor: selectedColor,
-                  ),
+                  builder: (context) => ColorPicker(currentColor: selectedColor),
                 );
                 if (newColor != null) {
-                  setState(() {
-                    selectedColor = newColor;
-                  });
+                  setState(() => selectedColor = newColor);
                   Navigator.pop(context, newColor);
                 }
               },
             ),
             const _SettingsDivider(),
 
-            // Metric System Row
             _buildListRow(
               CupertinoIcons.textformat_123,
-              'Metric System',
+              'Metric',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemGreen,
               trailing: CupertinoSwitch(
-                value: metricSystem,
+                value: useFahrenheit,
                 onChanged: (value) {
-                  setState(() {
-                    metricSystem = value;
-                  });
+                  setState(() => useFahrenheit = value);
+                  widget.onUnitChanged(value);
                 },
               ),
             ),
             const _SettingsDivider(),
 
-            // Light Mode Row
             _buildListRow(
               CupertinoIcons.sun_max,
               'Light Mode',
@@ -273,25 +284,17 @@ class _SettingsPageState extends State<SettingsPage> {
               iconBgColor: CupertinoColors.systemYellow,
               trailing: CupertinoSwitch(
                 value: lightMode,
-                onChanged: (value) {
-                  setState(() {
-                    lightMode = value;
-                  });
-                },
+                onChanged: (value) => setState(() => lightMode = value),
               ),
             ),
             const _SettingsDivider(),
 
-            // About Row
             _buildListRow(
               CupertinoIcons.info,
               'About',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemGrey,
-              trailing: const Text(
-                'Version: 1.0',
-                style: TextStyle(color: CupertinoColors.systemGrey),
-              ),
+              trailing: Text('Version: 1.0', style: TextStyle(color: CupertinoColors.systemGrey)),
             ),
             const _SettingsDivider(),
           ],
@@ -312,7 +315,7 @@ class _SettingsPageState extends State<SettingsPage> {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
             Container(
@@ -323,24 +326,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Center(
-                child: Icon(
-                  icon,
-                  size: 20,
-                  color: iconColor ?? CupertinoColors.white,
-                ),
+                child: Icon(icon, size: 20, color: iconColor ?? CupertinoColors.white),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            trailing ?? const SizedBox(),
+            SizedBox(width: 12),
+            Expanded(child: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400))),
+            trailing ?? SizedBox(),
           ],
         ),
       ),
@@ -355,7 +346,7 @@ class _SettingsDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 0.5,
-      margin: const EdgeInsets.only(left: 60.0),
+      margin: EdgeInsets.only(left: 60.0),
       color: CupertinoColors.separator,
     );
   }
@@ -388,23 +379,23 @@ class _LocationPickerState extends State<LocationPicker> {
   @override
   Widget build(BuildContext context) {
     return CupertinoAlertDialog(
-      title: const Text("Location"),
+      title: Text("Location"),
       content: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
+        padding: EdgeInsets.only(top: 8.0),
         child: CupertinoTextField(
           controller: _controller,
           placeholder: "Enter location",
-          padding: const EdgeInsets.all(12.0),
+          padding: EdgeInsets.all(12.0),
           decoration: BoxDecoration(
             color: CupertinoColors.black,
             borderRadius: BorderRadius.circular(8.0),
           ),
-          style: const TextStyle(color: CupertinoColors.white),
+          style: TextStyle(color: CupertinoColors.white),
         ),
       ),
       actions: [
         CupertinoDialogAction(
-          child: const Text("Save", style: TextStyle(color: CupertinoColors.activeBlue)),
+          child: Text("Save", style: TextStyle(color: CupertinoColors.activeBlue)),
           onPressed: () {
             if (_controller.text.trim().isNotEmpty) {
               Navigator.pop(context, _controller.text.trim());
@@ -412,7 +403,7 @@ class _LocationPickerState extends State<LocationPicker> {
           },
         ),
         CupertinoDialogAction(
-          child: const Text("Close", style: TextStyle(color: CupertinoColors.destructiveRed)),
+          child: Text("Close", style: TextStyle(color: CupertinoColors.destructiveRed)),
           onPressed: () => Navigator.pop(context),
         ),
       ],
@@ -439,17 +430,15 @@ class ColorPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CupertinoAlertDialog(
-      title: const Text("Icon Color"),
+      title: Text("Icon Color"),
       content: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        padding: EdgeInsets.symmetric(vertical: 16.0),
         child: Wrap(
           spacing: 16,
           runSpacing: 16,
           children: colorOptions.map((color) {
             return GestureDetector(
-              onTap: () {
-                Navigator.pop(context, color);
-              },
+              onTap: () => Navigator.pop(context, color),
               child: Container(
                 width: 40,
                 height: 40,
@@ -470,7 +459,7 @@ class ColorPicker extends StatelessWidget {
       ),
       actions: [
         CupertinoDialogAction(
-          child: const Text("Close", style: TextStyle(color: CupertinoColors.destructiveRed)),
+          child: Text("Close", style: TextStyle(color: CupertinoColors.destructiveRed)),
           onPressed: () => Navigator.pop(context),
         ),
       ],
