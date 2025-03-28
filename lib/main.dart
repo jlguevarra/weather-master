@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(const MyApp());
 
@@ -213,16 +214,18 @@ class _HomepageState extends State<Homepage> {
 class TeamMember {
   final String name;
   final String imagePath;
+  final String? url;
 
-  TeamMember(this.name, this.imagePath);
+  TeamMember(this.name, this.imagePath, {this.url});
 }
 
 final List<TeamMember> teamMembers = [
-  TeamMember('Christian Caparra', 'assets/images/ChristianCaparra.jpg'),
-  TeamMember('John Lloyd Guevarra', 'assets/images/JL1.jpg'),
-  TeamMember('Samuel Miranda', 'assets/images/sam.jpg'),
-  TeamMember('Jhuniel Galang', 'assets/images/Jhuniel.jpg'),
-  TeamMember('Michael Deramos', 'assets/images/mike.jpg'),
+
+  TeamMember('Christian Caparra', 'assets/images/ChristianCaparra.jpg', url: 'https://www.facebook.com/cunanan.2205'),
+  TeamMember('John Lloyd Guevarra', 'assets/images/JL1.jpg', url: 'https://www.facebook.com/johnlloyd0405'),
+  TeamMember('Samuel Miranda', 'assets/images/sam.jpg', url: 'https://www.facebook.com/samuel.miranda.256023'),
+  TeamMember('Jhuniel Galang', 'assets/images/Jhuniel.jpg', url: 'https://www.facebook.com/jhuniel.galang.3'),
+  TeamMember('Michael Deramos', 'assets/images/mike.jpg', url: 'https://www.facebook.com/mikel.deramos'),
 ];
 
 class SettingsPage extends StatefulWidget {
@@ -438,11 +441,21 @@ class SettingsPageState extends State<SettingsPage> {
                                     ),
                                   ),
                                 ),
-                                Text(
-                                  member.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                                GestureDetector(
+                                  onTap: () {
+                                    if (member.url != null) {
+                                      launchUrl(Uri.parse(member.url!));
+                                    }
+                                  },
+                                  child: Text(
+                                    member.name,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: member.url != null
+                                          ? CupertinoColors.link
+                                          : CupertinoColors.label.resolveFrom(context),
+                                    ),
                                   ),
                                 ),
                               ],
