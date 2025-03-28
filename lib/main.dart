@@ -265,7 +265,7 @@ class _SettingsPageState extends State<SettingsPage> {
             const _SettingsDivider(),
 
             _buildListRow(
-              CupertinoIcons.tree,
+              CupertinoIcons.gauge,
               'Metric System',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemGreen,
