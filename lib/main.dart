@@ -205,6 +205,7 @@ class _SettingsPageState extends State<SettingsPage> {
       child: SafeArea(
         child: Column(
           children: [
+            // Location Row
             _buildListRow(
               CupertinoIcons.location,
               'Location',
@@ -231,6 +232,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const _SettingsDivider(),
 
+            // Icon Color Row
             _buildListRow(
               CupertinoIcons.color_filter,
               'Icon',
@@ -264,6 +266,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const _SettingsDivider(),
 
+            // Metric System Row
             _buildListRow(
               CupertinoIcons.gauge,
               'Metric System',
@@ -279,6 +282,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const _SettingsDivider(),
 
+            // Light Mode Row
             _buildListRow(
               CupertinoIcons.light_max,
               'Light Mode',
@@ -291,6 +295,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const _SettingsDivider(),
 
+            // About Row
             _buildListRow(
               CupertinoIcons.info,
               'About',
@@ -348,8 +353,9 @@ class _SettingsDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 0.5,
-      margin: EdgeInsets.only(left: 60.0),
-      color: CupertinoColors.separator,
+      margin: EdgeInsets.only(left: 15.0, right: 15.0),
+
+      color: CupertinoColors.systemBrown,
     );
   }
 }
