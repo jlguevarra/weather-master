@@ -2,17 +2,54 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-void main() => runApp(CupertinoApp(
-  debugShowCheckedModeBanner: false,
-  home: Homepage(),
-));
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _lightMode = true;
+
+  void toggleTheme(bool value) {
+    setState(() {
+      _lightMode = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoApp(
+      debugShowCheckedModeBanner: false,
+      theme: CupertinoThemeData(
+        brightness: _lightMode ? Brightness.light : Brightness.dark,
+      ),
+      home: Homepage(
+        lightMode: _lightMode,
+        onThemeChanged: toggleTheme,
+      ),
+    );
+  }
+}
 
 class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+  final bool lightMode;
+  final Function(bool) onThemeChanged;
+
+  const Homepage({
+    required this.lightMode,
+    required this.onThemeChanged,
+    super.key,
+  });
 
   @override
   State<Homepage> createState() => _HomepageState();
 }
+
+
 
 class _HomepageState extends State<Homepage> {
   String location = "Baguio";
@@ -125,6 +162,8 @@ class _HomepageState extends State<Homepage> {
                   initialColor: iconColor,
                   useFahrenheit: useFahrenheit,
                   onUnitChanged: toggleTemperatureUnit,
+                  lightMode: widget.lightMode,               // Pass current theme mode
+                  onThemeChanged: widget.onThemeChanged,
                 ),
               ),
             );
@@ -186,6 +225,9 @@ class SettingsPage extends StatefulWidget {
   final Color initialColor;
   final bool useFahrenheit;
   final Function(bool) onUnitChanged;
+  // Add these:
+  final bool lightMode;
+  final Function(bool) onThemeChanged;
 
   const SettingsPage({
     required this.location,
@@ -193,6 +235,9 @@ class SettingsPage extends StatefulWidget {
     required this.initialColor,
     required this.useFahrenheit,
     required this.onUnitChanged,
+    // Add these:
+    required this.lightMode,
+    required this.onThemeChanged,
     Key? key,
   }) : super(key: key);
 
@@ -203,8 +248,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   late String selectedLocation;
   late bool useFahrenheit;
-  bool lightMode = true;
   late Color selectedColor;
+  // REMOVE: bool lightMode (we'll use widget.lightMode instead)
 
   @override
   void initState() {
@@ -307,8 +352,10 @@ class _SettingsPageState extends State<SettingsPage> {
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemYellow,
               trailing: CupertinoSwitch(
-                value: lightMode,
-                onChanged: (value) => setState(() => lightMode = value),
+                value: widget.lightMode, // Use the passed value
+                onChanged: (value) {
+                  widget.onThemeChanged(value); // Trigger theme change
+                },
               ),
             ),
             const _SettingsDivider(),
