@@ -162,12 +162,11 @@ class _HomepageState extends State<Homepage> {
                   initialColor: iconColor,
                   useFahrenheit: useFahrenheit,
                   onUnitChanged: toggleTemperatureUnit,
-                  lightMode: widget.lightMode,               // Pass current theme mode
+                  lightMode: widget.lightMode,
                   onThemeChanged: widget.onThemeChanged,
                 ),
               ),
             );
-
             if (result != null && result is Color) {
               setState(() => iconColor = result);
             }
@@ -176,27 +175,34 @@ class _HomepageState extends State<Homepage> {
       ),
       child: SafeArea(
         child: temp != ""
-            ? Center(
-          child: Column(
-            children: [
-              SizedBox(height: 50),
-              Text('Location', style: TextStyle(fontSize: 35)),
-              SizedBox(height: 5),
-              Text(location, style: TextStyle(fontSize: 25)),
-              SizedBox(height: 20),
-              Text(" $temp", style: TextStyle(fontSize: 80)),
-              Icon(weatherStatus, color: iconColor, size: 100),
-              SizedBox(height: 10),
-              Text(weather),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            ? SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(
+              child: Column(
                 children: [
-                  Text('H: $humidity'),
-                  SizedBox(width: 10),
-                  Text('W: $windSpeed')
+                  SizedBox(height: 20),
+                  Text('Location', style: TextStyle(fontSize: 35)),
+                  SizedBox(height: 5),
+                  Text(location, style: TextStyle(fontSize: 25)),
+                  SizedBox(height: 20),
+                  Text(" $temp", style: TextStyle(fontSize: 80)),
+                  Icon(weatherStatus, color: iconColor, size: 100),
+                  SizedBox(height: 10),
+                  Text(weather),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('H: $humidity'),
+                      SizedBox(width: 10),
+                      Text('W: $windSpeed')
+                    ],
+                  ),
+                  SizedBox(height: 40), // Extra space for scrolling
                 ],
-              )
-            ],
+              ),
+            ),
           ),
         )
             : Center(child: CupertinoActivityIndicator()),
@@ -266,6 +272,8 @@ class SettingsPageState extends State<SettingsPage> {
         middle: Text('Settings'),
       ),
       child: SafeArea(
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
             // Location Row
@@ -377,6 +385,7 @@ class SettingsPageState extends State<SettingsPage> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -384,75 +393,80 @@ class SettingsPageState extends State<SettingsPage> {
     showCupertinoDialog(
       context: context,
       builder: (context) => Center(
-        child: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: CupertinoColors.systemBackground.resolveFrom(context),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Team Members',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
+            ),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: CupertinoColors.systemBackground.resolveFrom(context),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Team Members',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Centered team members list
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: teamMembers.map((member) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Centered image + name pair
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.6,
+                const SizedBox(height: 20),
+                // Team members list in a scrollable container
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.5,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: teamMembers.map((member) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Image
-                            Container(
-                              width: 36,
-                              height: 36,
-                              margin: const EdgeInsets.only(right: 12),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: AssetImage(member.imagePath),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                            // Name
-                            Text(
-                              member.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.6,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 36,
+                                    height: 36,
+                                    margin: const EdgeInsets.only(right: 12),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: AssetImage(member.imagePath),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    member.name,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+                      )).toList(),
+                    ),
                   ),
-                )).toList(),
-              ),
-
-              const SizedBox(height: 20),
-              Center(
-                child: CupertinoButton(
+                ),
+                const SizedBox(height: 20),
+                CupertinoButton(
                   child: const Text('Close'),
                   onPressed: () => Navigator.pop(context),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
