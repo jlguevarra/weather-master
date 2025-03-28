@@ -91,15 +91,11 @@ class _HomepageState extends State<Homepage> {
               padding: EdgeInsets.zero,
               child: Icon(CupertinoIcons.settings),
               onPressed: () async {
-                final newLocation = await Navigator.push(
+                await Navigator.push(
                   context,
                   CupertinoPageRoute(
-                      builder: (context) => SettingsPage(location: location)),
+                      builder: (context) => SettingsPage(location: location, onLocationChanged: getWeatherData)),
                 );
-
-                if (newLocation != null && newLocation is String && newLocation != location) {
-                  getWeatherData(newLocation);
-                }
               },
             )),
         child: SafeArea(
@@ -133,8 +129,9 @@ class _HomepageState extends State<Homepage> {
 
 class SettingsPage extends StatefulWidget {
   final String location;
+  final Function(String) onLocationChanged;
 
-  const SettingsPage({required this.location, Key? key}) : super(key: key);
+  const SettingsPage({required this.location, required this.onLocationChanged, Key? key}) : super(key: key);
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -187,6 +184,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   setState(() {
                     selectedLocation = newLocation;
                   });
+                  widget.onLocationChanged(newLocation);
+                  Navigator.pop(context);
                 }
               },
             ),
@@ -251,20 +250,6 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             const _SettingsDivider(),
-
-            // Save Button
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: CupertinoButton.filled(
-                  child: const Text('Save'),
-                  onPressed: () {
-                    Navigator.pop(context, selectedLocation);
-                  },
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -378,7 +363,7 @@ class _LocationPickerState extends State<LocationPicker> {
           child: const Text("Save", style: TextStyle(color: CupertinoColors.activeBlue)),
           onPressed: () {
             if (_controller.text.trim().isNotEmpty) {
-              Navigator.pop(context, _controller.text.trim()); // Return new location
+              Navigator.pop(context, _controller.text.trim());
             }
           },
         ),
