@@ -335,14 +335,14 @@ class _SettingsDivider extends StatelessWidget {
 class LocationPicker extends StatefulWidget {
   final String currentLocation;
 
-  const LocationPicker({required this.currentLocation, Key? key}) : super(key: key);
+  const LocationPicker({Key? key, required this.currentLocation}) : super(key: key);
 
   @override
   _LocationPickerState createState() => _LocationPickerState();
 }
 
 class _LocationPickerState extends State<LocationPicker> {
-  late final TextEditingController _controller;
+  late TextEditingController _controller;
 
   @override
   void initState() {
@@ -358,42 +358,35 @@ class _LocationPickerState extends State<LocationPicker> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.chevron_left),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+    return CupertinoAlertDialog(
+      title: const Text("Location"),
+      content: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: CupertinoTextField(
+          controller: _controller,
+          placeholder: "Enter location",
+          padding: const EdgeInsets.all(12.0),
+          decoration: BoxDecoration(
+            color: CupertinoColors.black,
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          style: const TextStyle(color: CupertinoColors.white),
         ),
-        middle: const Text('Change Location'),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Text('Save'),
+      ),
+      actions: [
+        CupertinoDialogAction(
+          child: const Text("Save", style: TextStyle(color: CupertinoColors.activeBlue)),
           onPressed: () {
             if (_controller.text.trim().isNotEmpty) {
-              Navigator.pop(context, _controller.text.trim());
+              Navigator.pop(context, _controller.text.trim()); // Return new location
             }
-            //
           },
         ),
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: CupertinoTextField(
-            controller: _controller,
-            placeholder: 'Enter city name',
-            padding: const EdgeInsets.all(12.0),
-            decoration: BoxDecoration(
-              border: Border.all(color: CupertinoColors.systemGrey),
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            autofocus: true,
-          ),
+        CupertinoDialogAction(
+          child: const Text("Close", style: TextStyle(color: CupertinoColors.destructiveRed)),
+          onPressed: () => Navigator.pop(context),
         ),
-      ),
+      ],
     );
   }
 }
