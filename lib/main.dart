@@ -209,7 +209,7 @@ class _SettingsPageState extends State<SettingsPage> {
               CupertinoIcons.location,
               'Location',
               iconColor: CupertinoColors.white,
-              iconBgColor: CupertinoColors.systemBlue,
+              iconBgColor: CupertinoColors.systemOrange,
               trailing: Row(
                 children: [
                   Text(selectedLocation, style: TextStyle(color: CupertinoColors.systemGrey)),
@@ -235,7 +235,7 @@ class _SettingsPageState extends State<SettingsPage> {
               CupertinoIcons.burn,
               'Icon',
               iconColor: CupertinoColors.white,
-              iconBgColor: CupertinoColors.systemPurple,
+              iconBgColor: CupertinoColors.systemPink,
               trailing: Row(
                 children: [
                   Container(
@@ -295,7 +295,7 @@ class _SettingsPageState extends State<SettingsPage> {
               CupertinoIcons.info,
               'About',
               iconColor: CupertinoColors.white,
-              iconBgColor: CupertinoColors.systemGrey,
+              iconBgColor: CupertinoColors.systemBlue,
               trailing: Text('Version: 1.0', style: TextStyle(color: CupertinoColors.systemGrey)),
             ),
             const _SettingsDivider(),
@@ -325,7 +325,7 @@ class _SettingsPageState extends State<SettingsPage> {
               height: 32,
               decoration: BoxDecoration(
                 color: iconBgColor ?? CupertinoColors.systemGrey,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(5),
               ),
               child: Center(
                 child: Icon(icon, size: 20, color: iconColor ?? CupertinoColors.white),
