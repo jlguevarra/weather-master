@@ -336,10 +336,10 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) => Center(
         child: Container(
           width: MediaQuery.of(context).size.width * 0.8,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: CupertinoColors.systemBackground.resolveFrom(context),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -351,53 +351,60 @@ class _SettingsPageState extends State<SettingsPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 16),
-              Column(
-                children: teamMembers.map((member) => _buildTeamMemberTile(member)).toList(),
-              ),
               const SizedBox(height: 20),
-              CupertinoButton(
-                child: const Text('Close'),
-                onPressed: () => Navigator.pop(context),
+
+              // Centered team members list
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: teamMembers.map((member) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Centered image + name pair
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        child: Row(
+                          children: [
+                            // Image
+                            Container(
+                              width: 36,
+                              height: 36,
+                              margin: const EdgeInsets.only(right: 12),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: AssetImage(member.imagePath),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            // Name
+                            Text(
+                              member.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )).toList(),
+              ),
+
+              const SizedBox(height: 20),
+              Center(
+                child: CupertinoButton(
+                  child: const Text('Close'),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildTeamMemberTile(TeamMember member) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Member image with error handling
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: AssetImage(member.imagePath),
-                fit: BoxFit.cover,
-                onError: (exception, stackTrace) {
-                  // This will show if image fails to load
-                  debugPrint('Error loading image: ${member.imagePath}');
-                },
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            member.name,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
