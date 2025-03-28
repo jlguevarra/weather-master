@@ -165,6 +165,20 @@ class _HomepageState extends State<Homepage> {
     );
   }
 }
+class TeamMember {
+  final String name;
+  final String imagePath;
+
+  TeamMember(this.name, this.imagePath);
+}
+
+final List<TeamMember> teamMembers = [
+  TeamMember('Christian Caparra', 'assets/images/ChristianCaparra.jpg'),
+  TeamMember('John Lloyd Guevarra', 'assets/images/JL1.jpg'),
+  TeamMember('Samuel Miranda', 'assets/images/sam.jpg'),
+  TeamMember('Jhuniel Galang', 'assets/images/Jhuniel.jpg'),
+  TeamMember('Michael Deramos', 'assets/images/mike.jpg'),
+];
 
 class SettingsPage extends StatefulWidget {
   final String location;
@@ -305,7 +319,9 @@ class _SettingsPageState extends State<SettingsPage> {
               'About',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemBlue,
-              trailing: Text('Version: 1.0', style: TextStyle(color: CupertinoColors.systemGrey)),
+              trailing: const Text('Version: 1.0',
+                  style: TextStyle(color: CupertinoColors.systemGrey)),
+              onTap: () => _showTeamMembersDialog(context),
             ),
             const _SettingsDivider(),
           ],
@@ -313,6 +329,80 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
+
+  void _showTeamMembersDialog(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemBackground.resolveFrom(context),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Team Members',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Column(
+                children: teamMembers.map((member) => _buildTeamMemberTile(member)).toList(),
+              ),
+              const SizedBox(height: 20),
+              CupertinoButton(
+                child: const Text('Close'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeamMemberTile(TeamMember member) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Member image with error handling
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: AssetImage(member.imagePath),
+                fit: BoxFit.cover,
+                onError: (exception, stackTrace) {
+                  // This will show if image fails to load
+                  debugPrint('Error loading image: ${member.imagePath}');
+                },
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Text(
+            member.name,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
   Widget _buildListRow(
       IconData icon,
