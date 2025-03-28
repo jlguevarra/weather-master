@@ -352,12 +352,15 @@ class SettingsPageState extends State<SettingsPage> {
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemYellow,
               trailing: CupertinoSwitch(
-                value: widget.lightMode, // Use the passed value
+                value: widget.lightMode, // Ensure this is properly updated
                 onChanged: (value) {
-                  widget.onThemeChanged(value); // Trigger theme change
+                  setState(() {
+                    widget.onThemeChanged(value); // Update theme
+                  });
                 },
               ),
             ),
+
             const _SettingsDivider(),
 
             // About Row
