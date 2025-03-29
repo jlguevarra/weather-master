@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 void main() => runApp(const MyApp());
 
@@ -65,13 +65,27 @@ class _HomepageState extends State<Homepage> {
 
   Map<String, dynamic> weatherData = {};
 
+
+  Future<bool> checkInternetConnection() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
+  }
+
   Future<void> getWeatherData(String city) async {
+    bool isConnected = await checkInternetConnection();
+
+    if (!isConnected) {
+      showErrorDialog("No Internet Connection Detected");
+      return;
+    }
+
     try {
-      String link = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=a7d420a62aba5ad305ef3885c399d830";
+      String link = "https://api.openweathermap.org/data/2.5/weather?q=$city&appid=d26a28589f201ff18fc55052139ce779";
+
       final response = await http.get(Uri.parse(link));
 
-      weatherData = jsonDecode(response.body);
-      if (weatherData["cod"] == 200) {
+      if (response.statusCode == 200) {
+        weatherData = jsonDecode(response.body);
         setState(() {
           location = city;
           kelvinTemp = weatherData["main"]["temp"];
@@ -80,17 +94,18 @@ class _HomepageState extends State<Homepage> {
           humidity = "${weatherData["main"]["humidity"]}%";
           windSpeed = "${weatherData["wind"]['speed']} kph";
 
+          // Weather icons mapping
           if (weather.contains("clear")) {
             weatherStatus = CupertinoIcons.sun_max;
           } else if (weather.contains("cloud")) {
             weatherStatus = CupertinoIcons.cloud;
           } else if (weather.contains("haze")) {
             weatherStatus = CupertinoIcons.sun_haze;
-          }else if (weather.contains("snow")) {
+          } else if (weather.contains("snow")) {
             weatherStatus = CupertinoIcons.snow;
-          }else if (weather.contains("rain")) {
+          } else if (weather.contains("rain")) {
             weatherStatus = CupertinoIcons.cloud_rain;
-          }else if (weather.contains("thunderstorm")) {
+          } else if (weather.contains("thunderstorm")) {
             weatherStatus = CupertinoIcons.cloud_bolt_rain;
           } else {
             weatherStatus = CupertinoIcons.cloud_sun;
@@ -100,9 +115,10 @@ class _HomepageState extends State<Homepage> {
         showErrorDialog("City not Found");
       }
     } catch (e) {
-      showErrorDialog("No Internet Connection");
+      showErrorDialog("No Internet Connection. Please check your settings.");
     }
   }
+
 
   void updateTemperatureDisplay() {
     if (kelvinTemp != null) {
@@ -379,7 +395,7 @@ class SettingsPageState extends State<SettingsPage> {
               'About',
               iconColor: CupertinoColors.white,
               iconBgColor: CupertinoColors.systemBlue,
-              trailing: const Text('Version: 1.0.2',
+              trailing: const Text('Version: 1.0.1',
                   style: TextStyle(color: CupertinoColors.systemGrey)),
               onTap: () => _showTeamMembersDialog(context),
             ),
